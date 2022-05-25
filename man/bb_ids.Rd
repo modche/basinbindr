@@ -24,3 +24,6 @@ Function to extract ID (polygon_id) for one or multiple gauging stations.
 \details{
 Stations must be a data.frame of one or more gauging stations with x and y (longitude, latitude in WGS84) columns.
 }
+\examples{
+# will follow
+}

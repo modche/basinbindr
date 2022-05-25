@@ -11,6 +11,7 @@
 #' @export
 #'
 #' @examples
+#' # will follow
 bb_ids <- function(stations, 
                    shape, 
                    debug = FALSE, 
