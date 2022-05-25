@@ -4,7 +4,9 @@
 
 <!-- badges: end -->
 
-The goal of basinbindr is to delineation catchment outlines based on gauging station locations.
+The goal of basinbindr is to delineation catchment boundaries based on gauging station locations.
+
+Catchment delineation is creates a boundary that represents the contributing area for a specific water outlet, with the intent of characterization and analysis a specifc area, i.e. the topographic catchment boundaries.
 
 ## Installation
 
@@ -15,8 +17,12 @@ You can install the development version of basinbindr from [GitHub](https://gith
 devtools::install_github("modche/basinbindr")
 ```
 
-![Fig 1: Example 1](images/bsp_dreisam_schwarzwald.png)
+## Examples
+
+
+
+![Fig 1: A couple of catchments delineated in the South-west of Germany.](images/bsp_dreisam_schwarzwald.png)
 
 Here for a single catchment:
 
-![](images/bsp_brugga_schwarzwald.png)
+![Fig. 2: Brugga catchment.](images/bsp_brugga_schwarzwald.png)
