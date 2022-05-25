@@ -1,10 +1,10 @@
 Package: basinbindr
-Title: Catchment delination for Germany
+Title: Catchment Delination for Germany
 Version: 0.1
 Authors@R: 
     person("Michael", "Stoelzle", , "michael.stoelzle@hydro.uni-freiburg.de", role = c("aut", "cre"),
-           comment = c(ORCID = "YOUR-ORCID-ID"))
-Description: What the package does (one paragraph).
+           comment = c(ORCID = "0000-0003-0021-4351"))
+Description: With basinbindr you can delineate a catchment based on the location of gauging stations. The package uses the CATCHMENT-DE data set from the German Federal Institute of Hydrology (BfG) with around 400.000 basic catchments in Germany.
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
