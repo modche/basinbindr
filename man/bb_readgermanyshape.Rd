@@ -21,9 +21,11 @@ The \code{sf} package will generate some printouts or warnings during processing
 Read basin shape with \code{sf} package and stores as global variable defined by \code{name}.
 }
 \examples{
+\dontrun{
 gpkg_file <- '~/basisbasins.gpkg'
 bb_readgermanyshape(file = gpkg_file, name = 'basins_germany')
 
 #wrapper for this:
 basins_germany <- sf::st_read('~/basisbasins.gpkg')
+}
 }

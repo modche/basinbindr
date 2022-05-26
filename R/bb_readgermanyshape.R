@@ -10,11 +10,13 @@
 #' @export
 #'
 #' @examples
+#' \dontrun{
 #' gpkg_file <- '~/basisbasins.gpkg'
 #' bb_readgermanyshape(file = gpkg_file, name = 'basins_germany')
 #' 
 #' #wrapper for this:
 #' basins_germany <- sf::st_read('~/basisbasins.gpkg')
+#' }
  
 bb_readgermanyshape <- function(file = NULL, name = 'shape', quiet = FALSE) {
     assign({name}, sf::st_read(file, quiet = quiet), envir = .GlobalEnv)
