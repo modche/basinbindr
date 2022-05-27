@@ -1,12 +1,14 @@
-#' Function to extract basin ID (polygon_id) for one or multiple gauging stations.
+#' @title Extract primary basin ID for one or multiple gauging stations
 #'
-#' @param stations data.frame with gauging station with x and y coordinates.
+#' @description Extract primary basin ID for one or multiple gauging stations. 
+#'     With the primary basin ID the upstream sub-basins are identified. 
+#' @param stations \code{data.frame} with gauging station(s) with x and y coordinates. See details.
 #' @param germanyshape basin shapefile as a \code{sf} object; can be generated with [bb_readgermanyshape()].
 #' @param debug boolean; TRUE prints working process
-#' @param polygon_col name of id column in shapefile
+#' @param polygon_col name of primary basin ID column in shapefile, e.g. \code{objectid}
 #'
-#' @return Basin ID that includes the gauging station. For each line in \code{stations} one ID will be returned. 
-#' @details Stations must be a data.frame of one or more gauging stations with x and y (longitude, latitude in WGS84) columns.
+#' @return Primary basin ID that includes the gauging station. For each line in \code{stations} one primary basin ID will be returned. 
+#' @details Stations must be a \code{data.frame} with one or more gauging stations (\code{rows}) with \code{x} (longitude, WGS84) and \code{y} (latitude, WGS84) in two \code{columns}.
 #' @export
 #'
 #' @examples

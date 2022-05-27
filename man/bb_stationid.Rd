@@ -2,27 +2,28 @@
 % Please edit documentation in R/bb_stationid.R
 \name{bb_stationid}
 \alias{bb_stationid}
-\title{Function to extract basin ID (polygon_id) for one or multiple gauging stations.}
+\title{Extract primary basin ID for one or multiple gauging stations}
 \usage{
 bb_stationid(stations, germanyshape, debug = FALSE, polygon_col = "polygon_id")
 }
 \arguments{
-\item{stations}{data.frame with gauging station with x and y coordinates.}
+\item{stations}{\code{data.frame} with gauging station(s) with x and y coordinates. See details.}
 
 \item{germanyshape}{basin shapefile as a \code{sf} object; can be generated with \code{\link[=bb_readgermanyshape]{bb_readgermanyshape()}}.}
 
 \item{debug}{boolean; TRUE prints working process}
 
-\item{polygon_col}{name of id column in shapefile}
+\item{polygon_col}{name of primary basin ID column in shapefile, e.g. \code{objectid}}
 }
 \value{
-Basin ID that includes the gauging station. For each line in \code{stations} one ID will be returned.
+Primary basin ID that includes the gauging station. For each line in \code{stations} one primary basin ID will be returned.
 }
 \description{
-Function to extract basin ID (polygon_id) for one or multiple gauging stations.
+Extract primary basin ID for one or multiple gauging stations.
+With the primary basin ID the upstream sub-basins are identified.
 }
 \details{
-Stations must be a data.frame of one or more gauging stations with x and y (longitude, latitude in WGS84) columns.
+Stations must be a \code{data.frame} with one or more gauging stations (\code{rows}) with \code{x} (longitude, WGS84) and \code{y} (latitude, WGS84) in two \code{columns}.
 }
 \examples{
 # will follow

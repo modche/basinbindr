@@ -1,6 +1,6 @@
-#' @title Read basin shape with \code{sf}
+#' @title Reads germanyshape with \code{sf}
 #' 
-#' @description Read basin shape with \code{sf} package and stores as global variable defined by \code{name}.
+#' @description Read basin shape with all primary basins with \code{sf} package and stores as global variable defined by \code{name}.
 #' @param file Location of the shapefile or geopackage file 
 #' @param name Variable name that the shapefile should be assigned to.
 #' @param quiet logical; suppress info from \code{sf} package on name, driver, size and spatial reference etc.

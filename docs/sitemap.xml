@@ -19,7 +19,19 @@
     <loc>/news/index.html</loc>
   </url>
   <url>
+    <loc>/reference/bb_area.html</loc>
+  </url>
+  <url>
+    <loc>/reference/bb_delineate.html</loc>
+  </url>
+  <url>
     <loc>/reference/bb_ids.html</loc>
+  </url>
+  <url>
+    <loc>/reference/bb_readgermanyshape.html</loc>
+  </url>
+  <url>
+    <loc>/reference/bb_stationid.html</loc>
   </url>
   <url>
     <loc>/reference/index.html</loc>

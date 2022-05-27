@@ -2,7 +2,7 @@
 % Please edit documentation in R/bb_readgermanyshape.R
 \name{bb_readgermanyshape}
 \alias{bb_readgermanyshape}
-\title{Read basin shape with \code{sf}}
+\title{Reads germanyshape with \code{sf}}
 \usage{
 bb_readgermanyshape(file = NULL, name = "shape", quiet = FALSE)
 }
@@ -18,7 +18,7 @@ Loads the basins shape and stores it in a variable given by \code{name}.
 The \code{sf} package will generate some printouts or warnings during processing.
 }
 \description{
-Read basin shape with \code{sf} package and stores as global variable defined by \code{name}.
+Read basin shape with all primary basins with \code{sf} package and stores as global variable defined by \code{name}.
 }
 \examples{
 \dontrun{
