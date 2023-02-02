@@ -1,28 +1,56 @@
 #workflow
+library(sf)
 
-shp_file <- '/Users/modchemba/Dropbox/IHF/CAMELS_DE/_waterbody_number/_gis_shapes/basisezg_bfg_d_v2.shp'
-
-# 1a
-bb_readgermanyshape(file = shp_file, name = 'basins_germany')
-
-
-# Pegel X Y
-camels <- read.table('/Users/modchemba/Library/CloudStorage/Dropbox/IHF/CAMELS_DE/CAMELS_DE_Loc_2023_01_12/pegel_xy_area_2023_01_12.txt', header = T)
+# set working space ####
+source("../R/_init.R") # path_gis to basin shapefile needs to be defined
+shp_file <- paste0(path_gis,'/basisezg_bfg_d_v2.shp')
 
 
-camels3035 <- sf::st_as_sf(camels, coords = c('X', 'Y'), crs = sf::st_crs(3035)) 
-camels4326 <- sf::st_transform(camels3035, 4326)
+# 1. Load data ####
 
-camels_xy <- data.frame(sf::st_coordinates(camels4326))
-names(camels_xy) <- c('x','y')
+# 1.a basic basins shapefile ####
+bb_readgermanyshape(file = shp_file, name = 'basins_germany.shp')
+# Union/combine for borders
+# borders.shp <- st_union(basins_germany.shp) # do not run! takes ages!
+# borders.shp <- st_combine(basins_germany.shp) # does not merge overlapping polygons!
+# ggplot() + geom_sf(data=borders.shp, color="black") + geom_sf(data=basins_germany.shp[1:25,], color="blue")
 
-# 2.
-xy_ids <- bb_stationid(camels_xy, germanyshape = basins_germany, polygon_col = 'objectid', debug = TRUE)
+
+# 1.b station data X Y ####
+#camels <- read.table('../input_data/pegel_xy_area_2023_01_12.txt', header = T)
+camels <- data.table::fread('../input_data/metadata.csv')
+
+# Remove stations without coordinates
+camels_coords <- camels[!is.na(camels$x) & !is.na(camels$y)]
+
+# Transform into coordinate system of basins shape
+camels_stations <- sf::st_as_sf(camels_coords, coords = c('x', 'y'), crs = sf::st_crs(3035)) # define coordinate system
+ggplot(camels_stations) + geom_sf()
+
+if (sf::st_crs(camels_stations)!=sf::st_crs(basins_germany.shp)){ # potentially as bb_transform()
+    camels_stations <- sf::st_transform(camels_stations, sf::st_crs(basins_germany.shp))
+    print(paste("coordinates transformed into", sf::st_crs(camels_stations)[1]))
+}
+
+
+# 1.c Select example stations from each BL and check visually
+examples <- c()
+for (nut in unique(camels_stations$nuts_lvl2)){
+    print(nut)
+    examples <- c(examples, sample(which(camels_stations$nuts_lvl2==nut), 3))
+}
+ggplot(camels_stations[examples,]) + geom_sf() + geom_sf_text(aes(label=camels_id))
+
+
+
+# 2.Extract ids of basins for each station
+xy_ids <- bb_stationid(camels_stations[examples,], germanyshape = basins_germany.shp, polygon_col = 'objectid', debug = TRUE)
+
 
 # 3. extract catchment ids now
-catchment_ids <- bb_delineate(xy_ids[1:10], basins_germany, remove_artifical = TRUE)
+catchment_ids <- bb_delineate(xy_ids, basins_germany.shp, remove_artifical = TRUE)
 
-areas <- bb_area(catchment_ids, germanyshape = basins_germany, polygon_col = 'objectid')
+areas <- bb_area(catchment_ids, germanyshape = basins_germany.shp, polygon_col = 'objectid')
 
 
 a <- cbind(camels, area_delineation = areas) %>% tibble() %>% 
@@ -45,7 +73,7 @@ library(basinbindr)
 
 # Prepare BfG Basiseinzugsgebiete
 shp_file <- '/Users/modchemba/Dropbox/IHF/CAMELS_DE/_waterbody_number/_gis_shapes/basisezg_bfg_d_v2.shp'
-bb_readgermanyshape(file = shp_file, name = 'basins_germany')
+bb_readgermanyshape(file = shp_file, name = 'basins_germany.shp')
 
 
 # Pegel X Y
@@ -55,18 +83,18 @@ trier_xy <- data.frame(sf::st_coordinates(trier4326))
 names(trier_xy) <- c('x','y')
 
 # 2.
-xy_ids <- bb_stationid(trier_xy, germanyshape = basins_germany, polygon_col = 'objectid', debug = TRUE)
+xy_ids <- bb_stationid(trier_xy, germanyshape = basins_germany.shp, polygon_col = 'objectid', debug = TRUE)
 
 # 3. extract catchment ids now
-catchment_ids <- bb_delineate(xy_ids, basins_germany, remove_artifical = TRUE)
+catchment_ids <- bb_delineate(xy_ids, basins_germany.shp, remove_artifical = TRUE)
 
-areas <- bb_area(catchment_ids, germanyshape = basins_germany, polygon_col = 'objectid')
+areas <- bb_area(catchment_ids, germanyshape = basins_germany.shp, polygon_col = 'objectid')
 
 trier$areas <- areas
 
 for (i in 1:nrow(trier)) {
     cat(i,"\n")
-    shp <- basins_germany %>% filter(objectid %in% catchment_ids[[i]])
+    shp <- basins_germany.shp %>% filter(objectid %in% catchment_ids[[i]])
     
     layer_string <- paste(trier$Messstelle[i],trier$Stationsname[i],trier$Gewaesser[i], sep ="_")
     
