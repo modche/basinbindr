@@ -18,7 +18,10 @@ Loads the basins shape and stores it in a variable given by \code{name}.
 The \code{sf} package will generate some printouts or warnings during processing.
 }
 \description{
-Read basin shape with all primary basins with \code{sf} package and stores as global variable defined by \code{name}.
+Read basin shapes with all primary basins with \code{sf} package and stores as global variable defined by \code{name}.
+}
+\details{
+The original file is the primaray basin file (Basiseinzugsgebiete) from BfG from the year 2021. Projection is WGS84 (EPSG: 4326).
 }
 \examples{
 \dontrun{
