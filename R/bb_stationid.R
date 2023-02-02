@@ -1,14 +1,14 @@
 #' @title Extract primary basin ID for one or multiple gauging stations
 #'
 #' @description Extract primary basin ID for one or multiple gauging stations. 
-#'     With the primary basin ID the upstream sub-basins are identified. 
-#' @param stations \code{data.frame} with gauging station(s) with x and y coordinates. See details.
+#'     With the primary basin ID the upstream sub-basins can be identified. 
+#' @param stations \code{sf} point object. Alternatively, a \code{data.frame} with x and y coordinates of gauging station(s). See details.
 #' @param germanyshape basin shapefile as a \code{sf} object; can be generated with [bb_readgermanyshape()].
 #' @param debug boolean; TRUE prints working process
 #' @param polygon_col name of primary basin ID column in shapefile, e.g. \code{objectid}
 #'
 #' @return Primary basin ID that includes the gauging station. For each line in \code{stations} one primary basin ID will be returned. 
-#' @details Stations must be a \code{data.frame} with one or more gauging stations (\code{rows}) with \code{x} (longitude, WGS84) and \code{y} (latitude, WGS84) in two \code{columns}.
+#' @details Stations must be a \code{sf} point object. Alternatively, \code{data.frame} with one or more gauging stations (\code{rows}) with \code{x} (longitude, WGS84) and \code{y} (latitude, WGS84) in two \code{columns}.
 #' @export
 #'
 #' @examples
@@ -18,23 +18,50 @@ bb_stationid <- function(stations,
                    debug = FALSE, 
                    polygon_col = 'polygon_id') {
     
+    # Checks
     if(!polygon_col %in% names(germanyshape)) stop(paste0(polygon_col, ' not found as data column in germanyshape.'))
     
-    ids <- rep(NA, nrow(stations))
-    station_sf <- sf::st_as_sf(stations, coords = c("x","y"), crs = 4326, remove = FALSE)
+    # Check sf object
+    if (!all(sf::st_is(stations, "POINT"))){ # check if sf point object
+        # Check column availability to create an sf object
+        cols <- c("x","y")
+        if(!all(cols %in% names(stations))) stop(paste0("stations was not an sf object; and ",cols[1]," and ", cols[2], ' not found as data column in stations.'))
+        
+        print(paste("Warning: Simple feature object created from",cols[1]," and ", cols[2],"with crs=4326"))
+        stations <- sf::st_as_sf(stations, coords = c("x","y"), crs = 4326, remove = FALSE)
+    }
     
-    x <- stations$x
-    y <- stations$y
+    # Check coordinate system of stations and basins # TODOOOOO ####
     
+    X <- sf::st_coordinates(stations)[,1]
+    Y <- sf::st_coordinates(stations)[,2]
+    
+    # Identify basin-id for each station
+    ids <- rep(NA, nrow(stations)) # Initialize variables
     for (i in 1:nrow(stations)) {
         if(debug) cat(i," ")
         
-        bb_shape <- dplyr::filter(germanyshape, x[i] > xmin, x[i] < xmax, y[i] > ymin, y[i] < ymax) 
-        find_id <- sf::st_join(station_sf[i,], bb_shape, join = sf::st_within) # within prüfen
-        extract_id <-  dplyr::pull(find_id, {polygon_col})
+        # reduce number of possible intersects by binding box
+        bb_shape <- dplyr::filter(germanyshape, X[i] > xmin, X[i] < xmax, Y[i] > ymin, Y[i] < ymax) 
+        # Check results visually
+        ggplot() + 
+            geom_sf(data=bb_shape, color="grey") + 
+            geom_sf_text(data=bb_shape, aes_string(label=polygon_col), color="grey20", size=10) + 
+            geom_sf(data=stations[i,], color="blue", size=5)
         
-        if(length(extract_id) != 1) message('Station has more than 1 matching polygon. Using first.') #prüfen wo fehlerhaft
-        ids[i] <- extract_id[1]
+        # Identify corresponding polygon
+        # start_time2 <- Sys.time()
+        find_id <- sf::st_join(stations[i,], bb_shape, join = sf::st_within) # within prüfen
+        # end_time2 <- Sys.time()
+        # print(end_time2 - start_time2)
+        # start_time1 <- Sys.time()
+        #find_id2 <- sf::st_intersection(stations[i,], bb_shape) # within prüfen
+        # end_time1 <- Sys.time()
+        # print(end_time1 - start_time1)
+        
+        # write basin-id to output
+        if(nrow(find_id) != 1) message('Station has more than 1 matching polygon. Using first.') #prüfen wo fehlerhaft
+        ids[i] <- sf::st_drop_geometry(find_id)[1,polygon_col] #extract_id[1]
     }
     if(debug) cat("\n")
     return(ids)    
