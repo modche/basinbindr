@@ -43,7 +43,7 @@ if (remove_artifical) {
 # count how many polgons form the catchment
 #n <- nrow(basin_bind_clean)
 
-result[[i]] <- basin_bind_clean[[polygon_col]] 
+result[[i]] <- basin_bind_clean[[polygon_col]] # bug, weil variable nur aus if drüber kommen kann
 
 } #end loop
 

@@ -30,10 +30,10 @@ bb_stationid <- function(stations,
         if(debug) cat(i," ")
         
         bb_shape <- dplyr::filter(germanyshape, x[i] > xmin, x[i] < xmax, y[i] > ymin, y[i] < ymax) 
-        find_id <- sf::st_join(station_sf[i,], bb_shape, join = sf::st_within) 
+        find_id <- sf::st_join(station_sf[i,], bb_shape, join = sf::st_within) # within prüfen
         extract_id <-  dplyr::pull(find_id, {polygon_col})
         
-        if(length(extract_id) != 1) message('Station has more than 1 matching polygon. Using first.')
+        if(length(extract_id) != 1) message('Station has more than 1 matching polygon. Using first.') #prüfen wo fehlerhaft
         ids[i] <- extract_id[1]
     }
     if(debug) cat("\n")
