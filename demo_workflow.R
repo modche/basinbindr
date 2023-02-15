@@ -20,7 +20,7 @@ ggplot() +
     geom_sf(data=basins_germany.shp[1:300,], color="blue")
 
 
-# 1.b station data X Y ####
+# 1.b station meta data ####
 #camels_meta <- read.table('../input_data/pegel_xy_area_2023_01_12.txt', header = T)
 camels_meta <- data.table::fread('../input_data/metadata.csv')
 
@@ -46,16 +46,18 @@ for (nut in unique(camels_stations$nuts_lvl2)){
     examples <- c(examples, sample(which(camels_stations$nuts_lvl2==nut), 3))
 }
 ggplot(camels_stations[examples,]) + geom_sf() + geom_sf_text(aes(label=camels_id))
+write.csv2(camels_stations$camels_id[examples],file="../example_stations.csv", row.names = F) # for reproducibility
 
 
-
-# 2.Extract ids of basins for each station
+# 2. Extract ids of basic basins for each station (i.e. bbasin of the catchment outlet)
 xy_ids <- bb_stationid(camels_stations[examples,], germanyshape = basins_germany.shp, polygon_col = 'objectid', debug = TRUE)
 
 
-# 3. extract catchment ids now
-catchment_ids <- bb_delineate(xy_ids, basins_germany.shp, remove_artifical = TRUE)
+# 3. Extract all basic basins ids of the catchment (i.e. upstream area of station)
+catchment_ids <- bb_delineate(bbasin_ids=xy_ids, germanyshape=basins_germany.shp, remove_artifical = TRUE, 
+                              station_ids=camels_stations$camels_id[examples], plot=TRUE, plot_dsn="../figures/bbasins/")
 
+# 4. Calculate the area of the whole catchment
 areas <- bb_area(catchment_ids, germanyshape = basins_germany.shp, polygon_col = 'objectid')
 
 
