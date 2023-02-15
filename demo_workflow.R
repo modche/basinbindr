@@ -3,6 +3,7 @@ library(sf)
 library(ggplot2)
 
 # set working space ####
+path_project <- getwd()
 source("../R/_init.R") # path_gis to basin shapefile needs to be defined
 shp_file <- paste0(path_gis,'/basisezg_bfg_d_v2.shp')
 
@@ -20,19 +21,21 @@ ggplot() +
 
 
 # 1.b station data X Y ####
-#camels <- read.table('../input_data/pegel_xy_area_2023_01_12.txt', header = T)
-camels <- data.table::fread('../input_data/metadata.csv')
+#camels_meta <- read.table('../input_data/pegel_xy_area_2023_01_12.txt', header = T)
+camels_meta <- data.table::fread('../input_data/metadata.csv')
 
 # Remove stations without coordinates
-camels_coords <- camels[!is.na(camels$x) & !is.na(camels$y)]
+camels_coords <- camels_meta[!is.na(camels_meta$lon) & !is.na(camels_meta$lat)]
 
 # Transform into coordinate system of basins shape
-camels_stations <- sf::st_as_sf(camels_coords, coords = c('x', 'y'), crs = sf::st_crs(3035)) # define coordinate system
+camels_stations <- sf::st_as_sf(camels_coords, coords = c('lon', 'lat'), crs = sf::st_crs(4326)) # define coordinate system
 ggplot(camels_stations) + geom_sf()
 
 if (sf::st_crs(camels_stations)!=sf::st_crs(basins_germany.shp)){ # potentially as bb_transform()
     camels_stations <- sf::st_transform(camels_stations, sf::st_crs(basins_germany.shp))
-    print(paste("coordinates transformed into", sf::st_crs(camels_stations)[1]))
+    print(paste("station coordinate system checked, transformed into", sf::st_crs(camels_stations)[1]))
+} else {
+    print(paste("station coordinate system checked, already in", sf::st_crs(camels_stations)[1]))
 }
 
 
