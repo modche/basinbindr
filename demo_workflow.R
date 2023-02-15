@@ -1,5 +1,6 @@
 #workflow
 library(sf)
+library(ggplot2)
 
 # set working space ####
 source("../R/_init.R") # path_gis to basin shapefile needs to be defined
@@ -13,7 +14,9 @@ bb_readgermanyshape(file = shp_file, name = 'basins_germany.shp')
 # Union/combine for borders
 # borders.shp <- st_union(basins_germany.shp) # do not run! takes ages!
 # borders.shp <- st_combine(basins_germany.shp) # does not merge overlapping polygons!
-# ggplot() + geom_sf(data=borders.shp, color="black") + geom_sf(data=basins_germany.shp[1:25,], color="blue")
+ggplot() + 
+    geom_sf(data=borders.shp, color="black") + 
+    geom_sf(data=basins_germany.shp[1:300,], color="blue")
 
 
 # 1.b station data X Y ####
