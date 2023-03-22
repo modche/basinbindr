@@ -4,19 +4,20 @@ library(ggplot2)
 
 # set working space ####
 path_project <- getwd()
-source("../R/_init.R") # path_gis to basin shapefile needs to be defined
-shp_file <- paste0(path_gis,'/basisezg_bfg_d_v2.shp')
+source("../R/_init.R") # defines paths to GIS data, minimum basin shapefile needs to be defined
+file_basins <- paste0(path_gis,'/basisezg_bfg_d_v2.shp')
+file_rivers <- paste0(path_rivers,'/GER_Net.shp') # EU Hydro Note: here still beta version
 
 
 # 1. Load data ####
 
 # 1.a basic basins shapefile ####
-bb_readgermanyshape(file = shp_file, name = 'basins_germany.shp')
-# Union/combine for borders
+bb_readgermanyshape(file = file_basins, name = 'basins_germany.shp')
+# Union/combine for borders (TODO: NOT working) yet
 # borders.shp <- st_union(basins_germany.shp) # do not run! takes ages!
 # borders.shp <- st_combine(basins_germany.shp) # does not merge overlapping polygons!
 ggplot() + 
-    geom_sf(data=borders.shp, color="black") + 
+    #geom_sf(data=borders.shp, color="black") + 
     geom_sf(data=basins_germany.shp[1:300,], color="blue")
 
 
@@ -40,29 +41,66 @@ if (sf::st_crs(camels_stations)!=sf::st_crs(basins_germany.shp)){ # potentially 
 
 
 # 1.c Select example stations from each BL and check visually
-examples <- c()
-for (nut in unique(camels_stations$nuts_lvl2)){
-    print(nut)
-    examples <- c(examples, sample(which(camels_stations$nuts_lvl2==nut), 3))
-}
+# examples <- c()
+# for (nut in unique(camels_stations$nuts_lvl2)){
+#     print(nut)
+#     examples <- c(examples, sample(which(camels_stations$nuts_lvl2==nut), 3))
+# }
+# examples_ids <- camels_stations$camels_id[examples]
+# #write.csv2(examples_ids, file="../example_stations.csv", row.names = F) # for reproducibility
+# #sf::st_write(camels_stations[examples,], dsn="../output_data/example_stations.gpkg") # for gis checks
+# Load a previous selection of examples
+examples_ids <- read.csv2(file="../example_stations.csv")
+examples <- which(camels_stations$camels_id %in% examples_ids[,1])
+# Plot selected example stations
 ggplot(camels_stations[examples,]) + geom_sf() + geom_sf_text(aes(label=camels_id))
-write.csv2(camels_stations$camels_id[examples],file="../example_stations.csv", row.names = F) # for reproducibility
 
 
 # 2. Extract ids of basic basins for each station (i.e. bbasin of the catchment outlet)
-xy_ids <- bb_stationid(camels_stations[examples,], germanyshape = basins_germany.shp, polygon_col = 'objectid', debug = TRUE)
+bboutlet_ids <- bb_stationid(camels_stations[examples,], germanyshape = basins_germany.shp, polygon_col = 'objectid', debug = TRUE)
 
 
 # 3. Extract all basic basins ids of the catchment (i.e. upstream area of station)
-catchment_ids <- bb_delineate(bbasin_ids=xy_ids, germanyshape=basins_germany.shp, remove_artifical = TRUE, 
-                              station_ids=camels_stations$camels_id[examples], plot=TRUE, plot_dsn="../figures/bbasins/")
+basins_ids <- bb_delineate(bbasin_ids=bboutlet_ids, germanyshape=basins_germany.shp, remove_artifical = TRUE, 
+                           plot=FALSE, plot_dsn="../figures/bbasins/",
+                           stations=camels_stations[examples,], station_id_col = "camels_id",
+                           plot_rivers=file_rivers)
 
-# 4. Calculate the area of the whole catchment
-areas <- bb_area(catchment_ids, germanyshape = basins_germany.shp, polygon_col = 'objectid')
+# 4. Union and Save catchments as geopackage
+# Station shape (with metadata)
+stations_shp <- camels_stations[examples,] # all stations to be divided into layers
 
+# Create catchments without layer
+examples_shp <- bb_catchments(station_basins=basins_ids, germanyshape = basins_germany.shp, polygon_col = 'objectid',
+        save=TRUE, dsn="../output_data/example_basins.gpkg", layer="examples",
+        stations=stations_shp, station_id_col = "camels_id")
 
-a <- cbind(camels, area_delineation = areas) %>% tibble() %>% 
-    mutate(diff = area_delineation - area, ratio = diff / area_delineation)
+# Create catchments by federal state as layer in geopackage
+bls <- unique(stations_shp$nuts_lvl2)
+camels_shp <- NULL # results will be saved here
+for (bl in bls){
+    print(bl)
+    layer <- bl
+    idx_layer <- which(stations_shp$nuts_lvl2 %in% layer) # get indices of stations in layer
+    
+    # subset stations and basins for layer
+    stations_layer <- stations_shp[idx_layer,]
+    basins_layer <- basins_ids[idx_layer]
+    
+    # get catchment polygons for layer
+    layer_shp <- bb_catchments(station_basins=basins_layer, germanyshape = basins_germany.shp, polygon_col = 'objectid',
+                            save=FALSE, dsn="../output_data/camels_examples.gpkg", layer=layer,
+                            stations=stations_layer, station_id_col = "camels_id")
+    layer_shp$layer <- layer
+    
+    # Append layer to results
+    camels_shp <- rbind(camels_shp, layer_shp)
+}
+# Plot
+ggplot() + geom_sf(data=camels_shp, aes(fill=layer))
+
+# Save all layers jointly in one layer
+sf::st_write(camels_shp, dsn="../output_data/camels_examples_singlelayer.gpkg", layer="examples_all", delete_layer = TRUE)
 
 
 
