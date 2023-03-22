@@ -5,26 +5,46 @@
 \title{Delineation of catchment(s)}
 \usage{
 bb_delineate(
-  station_ids,
+  bbasin_ids,
   germanyshape,
   polygon_col = "objectid",
   geb = "geb_kz_num",
   gew = "gew_kz_num",
-  remove_artifical = TRUE
+  remove_artifical = TRUE,
+  check_border = FALSE,
+  plot = FALSE,
+  plot_dsn = "",
+  stations = NULL,
+  station_id_col = NULL,
+  plot_rivers = NULL
 )
 }
 \arguments{
-\item{station_ids}{vector with primary basin IDs for one or more gauging stations}
+\item{bbasin_ids}{vector with primary basin IDs for one or more gauging stations}
 
 \item{germanyshape}{basin shapefile as a \code{sf} object; can be generated with \code{\link[=bb_readgermanyshape]{bb_readgermanyshape()}}.}
 
-\item{polygon_col}{name of primary basin ID column in shapefile}
+\item{polygon_col}{name of primary basin ID column in shapefile germanyshape}
 
 \item{geb}{name of domain column ('Gebietskennzahl'), default = 'geb_kz_num')}
 
 \item{gew}{name of water body column ('Gewässerkennzahl', default = 'gew_kz_num')}
 
 \item{remove_artifical}{logical, should artificial water bodies such as canals be removed from procedure?}
+
+\item{check_border}{logical, if TRUE  it is checked if the delineated catchment area intersects the outer boundary of the basinshapefile, a flag is returned}
+
+\item{plot}{logical, if TRUE plots are saved in one pdf for each bbasin_id, useful for quality checking the results}
+
+\item{plot_dsn}{character, defines path to save plots (if plot TRUE)}
+
+\item{stations}{\code{sf} point object with station ids corresponding to bbasin_ids, (only needed if plot TRUE)}
+
+\item{station_id_col}{character with  column name of station ids in \code{stations}, (only needed if plot TRUE)}
+
+\item{plot_rivers}{river shapefile as a \code{sf} line object or character with rivers file name to plot (if plot TRUE), default NULL. If NULL no rivers to plot}
+
+\item{coastal_area}{logical, should coastal waters be flagged? (not yet implemented)}
 }
 \value{
 will follow
