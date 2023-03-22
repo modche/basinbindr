@@ -22,7 +22,7 @@ area <- rep(NA, n)
     #extract all sub-basins from germanyshape
         basins    <- germanyshape[germanyshape[[polygon_col]] %in% selection,]
     #calculate total area of catchment in km2
-        area[i]   <- sum(as.numeric(sf::st_area(basins)))/1e6
+        area[i]   <- sum(as.numeric(sf::st_area(basins)))/1e6 # BUG - this does not take into account overlapping areas
     }
 return(area)
 }
