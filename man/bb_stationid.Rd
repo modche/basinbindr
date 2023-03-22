@@ -7,7 +7,7 @@
 bb_stationid(stations, germanyshape, debug = FALSE, polygon_col = "polygon_id")
 }
 \arguments{
-\item{stations}{\code{data.frame} with gauging station(s) with x and y coordinates. See details.}
+\item{stations}{\code{sf} point object. Alternatively, a \code{data.frame} with lat and lon coordinates of gauging station(s). See details.}
 
 \item{germanyshape}{basin shapefile as a \code{sf} object; can be generated with \code{\link[=bb_readgermanyshape]{bb_readgermanyshape()}}.}
 
@@ -20,10 +20,10 @@ Primary basin ID that includes the gauging station. For each line in \code{stati
 }
 \description{
 Extract primary basin ID for one or multiple gauging stations.
-With the primary basin ID the upstream sub-basins are identified.
+With the primary basin ID the upstream sub-basins can be identified.
 }
 \details{
-Stations must be a \code{data.frame} with one or more gauging stations (\code{rows}) with \code{x} (longitude, WGS84) and \code{y} (latitude, WGS84) in two \code{columns}.
+Stations must be a \code{sf} point object. Alternatively, \code{data.frame} with one or more gauging stations (\code{rows}) with \code{x} (longitude, WGS84) and \code{y} (latitude, WGS84) in two \code{columns}.
 }
 \examples{
 # will follow
