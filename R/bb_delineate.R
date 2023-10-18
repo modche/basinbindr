@@ -5,7 +5,7 @@
 #' @param polygon_col name of primary basin ID column in shapefile germanyshape
 #' @param geb name of domain column ('Gebietskennzahl'), default = 'geb_kz_num')
 #' @param gew name of water body column ('Gewässerkennzahl', default = 'gew_kz_num')
-#' @param remove_artifical logical, should artificial water bodies such as canals be removed from procedure?
+#' @param remove_artificial logical, should artificial water bodies such as canals be removed from procedure?
 #' @param coastal_area logical, should coastal waters be flagged? (not yet implemented)
 #' @param check_border logical, if TRUE  it is checked if the delineated catchment area intersects the outer boundary of the basinshapefile, a flag is returned
 #' @param plot logical, if TRUE plots are saved in one pdf for each bbasin_id, useful for quality checking the results
@@ -14,7 +14,7 @@
 #' @param station_id_col character with  column name of station ids in \code{stations}, (only needed if plot TRUE) 
 #' @param plot_rivers river shapefile as a \code{sf} line object or character with rivers file name to plot (if plot TRUE), default NULL. If NULL no rivers to plot
 #' 
-#' @return will follow
+#' @return list with all bbasin_ids upstream of the provided bbasin within each list item
 #' @export
 #'
 #' @examples
@@ -26,7 +26,7 @@ bb_delineate <- function(bbasin_ids,
                          polygon_col = 'objectid',
                          geb = 'geb_kz_num',
                          gew = 'gew_kz_num',
-                         remove_artifical = TRUE,
+                         remove_artificial = TRUE,
                          #coastal_area = FALSE, # @TODO: potentially add a flag for coastal catchments (gkw > 9...)
                          check_border=FALSE,
                          plot=FALSE,
@@ -50,7 +50,7 @@ bb_delineate <- function(bbasin_ids,
             print("Warning: Rivers data is not a simple feature line object")
         }
         
-        # Transform rivers data is necessary
+        # Transform rivers data if necessary
         if (sf::st_crs(rivers_shp)!=sf::st_crs(germanyshape)){ # potentially as bb_transform()
             rivers_shp <- sf::st_transform(rivers_shp, sf::st_crs(germanyshape))
             print(paste("river coordinate system checked, transformed into", sf::st_crs(rivers_shp)[1]))
@@ -78,8 +78,8 @@ bb_delineate <- function(bbasin_ids,
                                     germanyshape[[geb]] <= geb_station,
                                     germanyshape[[gew]] >= gew_station)
         
-                # remove polygons with large differences between domain and water body number
-        if (remove_artifical) {
+        # remove polygons with large differences between domain and water body number
+        if (remove_artificial) {
             rm_artificials   <- (basin_bind[[gew]] - basin_bind[[geb]]) < 1e14  
             basin_bind_clean <- basin_bind[rm_artificials,] # remove over 70 canals and transitions
         } else {

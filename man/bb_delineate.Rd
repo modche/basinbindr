@@ -10,7 +10,7 @@ bb_delineate(
   polygon_col = "objectid",
   geb = "geb_kz_num",
   gew = "gew_kz_num",
-  remove_artifical = TRUE,
+  remove_artificial = TRUE,
   check_border = FALSE,
   plot = FALSE,
   plot_dsn = "",
@@ -30,7 +30,7 @@ bb_delineate(
 
 \item{gew}{name of water body column ('Gewässerkennzahl', default = 'gew_kz_num')}
 
-\item{remove_artifical}{logical, should artificial water bodies such as canals be removed from procedure?}
+\item{remove_artificial}{logical, should artificial water bodies such as canals be removed from procedure?}
 
 \item{check_border}{logical, if TRUE  it is checked if the delineated catchment area intersects the outer boundary of the basinshapefile, a flag is returned}
 
@@ -47,7 +47,7 @@ bb_delineate(
 \item{coastal_area}{logical, should coastal waters be flagged? (not yet implemented)}
 }
 \value{
-will follow
+list with all bbasin_ids upstream of the provided bbasin within each list item
 }
 \description{
 Delineation of catchment(s)
